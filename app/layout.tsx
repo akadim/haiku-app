@@ -2,11 +2,12 @@ import { FC, ReactNode } from "react";
 
 import "./globals.css";
 import Link from "next/link";
+import ToastProvider from "./ToastProvider";
 
 const RootLayout: FC<{ children: ReactNode }> = ({ children }) => (
   <html>
     <body>
-      <div className="navbar bg-base-100">
+      <div className="navbar bg-base-300 shadow-xl mb-5">
         <div className="flex-1">
           <Link href="/" className="btn btn-ghost text-xl">
             Haiku App
@@ -20,8 +21,7 @@ const RootLayout: FC<{ children: ReactNode }> = ({ children }) => (
           </ul>
         </div>
       </div>
-
-      {children}
+      <ToastProvider>{children}</ToastProvider>
       <footer className="text-gray-400 text-center text-xs py-5">
         <p>Copyright &copy; {new Date().getFullYear()} All rights reserved!</p>
       </footer>
