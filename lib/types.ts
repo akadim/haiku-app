@@ -13,4 +13,13 @@ export const signupSchema = z
     path: ["confirm-password"],
   });
 
+export const LoginSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .min(10, "Password must be at least 10 characters"),
+});
+
 export type TSignupSchema = z.infer<typeof signupSchema>;
+export type TLoginSchema = z.infer<typeof LoginSchema>;

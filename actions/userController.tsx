@@ -1,11 +1,22 @@
 "use server";
 
-import { signupSchema, TSignupSchema } from "@/lib/types";
+import {
+  LoginSchema,
+  signupSchema,
+  TLoginSchema,
+  TSignupSchema,
+} from "@/lib/types";
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+import { redirect } from "next/navigation";
+
+export const logout = async () => {
+  cookies().delete("ourHaikuApp");
+  redirect("/");
+};
 
 export const signup = async (data: TSignupSchema) => {
   const prisma = new PrismaClient();
@@ -63,4 +74,59 @@ export const signup = async (data: TSignupSchema) => {
   });
 
   return result;
+};
+
+export const login = async (data: TLoginSchema) => {
+  // Validating the login data
+  const result = LoginSchema.safeParse(data);
+  const prisma = new PrismaClient();
+
+  if (!result.success) {
+    return {
+      errors: result.error.issues,
+      success: false,
+    };
+  }
+
+  // Check if the user exists
+  const fetchedUser = await prisma.user.findUnique({
+    where: {
+      username: result.data.username,
+    },
+  });
+
+  const failedLogin = {
+    message: "Invalid username or password",
+    success: false,
+  };
+
+  if (!fetchedUser) {
+    return failedLogin;
+  }
+
+  // Check if the password is correct
+  const isPasswordCorrect = await bcrypt.compareSync(
+    result.data.password,
+    fetchedUser.password
+  );
+
+  if (!isPasswordCorrect) {
+    return failedLogin;
+  }
+
+  // Create a JWT Token with the user id and store it in the cookie
+  cookies().set(
+    "ourHaikuApp",
+    jwt.sign(
+      {
+        id: fetchedUser.id,
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+        secure: true,
+      },
+      process.env.JWT_SECRET!
+    ),
+    {}
+  );
+
+  return redirect("/");
 };
