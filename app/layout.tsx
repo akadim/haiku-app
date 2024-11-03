@@ -8,7 +8,9 @@ const RootLayout: FC<{ children: ReactNode }> = ({ children }) => (
   <html>
     <body>
       <Header />
-      <ToastProvider>{children}</ToastProvider>
+      <ToastProvider>
+        <main className="container mx-auto p-10">{children}</main>
+      </ToastProvider>
       <footer className="text-gray-400 text-center text-xs py-5">
         <p>Copyright &copy; {new Date().getFullYear()} All rights reserved!</p>
       </footer>

@@ -20,4 +20,14 @@ model User {
   password  String
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+  haikus    Haiku[]
+}
+
+model Haiku {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  line1    String
+  line2    String
+  line3    String
+  user User @relation(fields: [userId], references: [id])
+  userId   String
 }

@@ -1,3 +1,9 @@
+"use client";
+
+import { createHaiku } from "@/actions/HaikuController";
+import { HaikuSchema, THaikuSchema } from "@/lib/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { redirect } from "next/navigation";
 import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
@@ -6,9 +12,13 @@ const HaikuForm = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm();
+  } = useForm<THaikuSchema>({
+    resolver: zodResolver(HaikuSchema),
+  });
 
-  const onSubmit: SubmitHandler = (data) => {};
+  const onSubmit: SubmitHandler<THaikuSchema> = async (data: THaikuSchema) => {
+    await createHaiku(data);
+  };
   return (
     <div>
       <p className="text-center text-2xl text-gray-600 mb-5">Create Haiku</p>
@@ -19,7 +29,7 @@ const HaikuForm = () => {
             autoComplete="off"
             type="text"
             name="line1"
-            placeholder="Line 1"
+            placeholder="Line #1"
             className="input input-bordered w-full max-w-xs"
           />
           {errors.line1 && (
@@ -47,10 +57,10 @@ const HaikuForm = () => {
             autoComplete="off"
             type="text"
             name="line2"
-            placeholder="Username"
+            placeholder="Line #2"
             className="input input-bordered w-full max-w-xs"
           />
-          {errors.username && (
+          {errors.line2 && (
             <div role="alert" className="alert alert-warning">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -65,20 +75,20 @@ const HaikuForm = () => {
                   d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                 />
               </svg>
-              <span>{errors.username.message}</span>
+              <span>{errors.line2.message}</span>
             </div>
           )}
         </div>
         <div className="mb-3">
           <input
-            {...register("username")}
+            {...register("line3")}
             autoComplete="off"
             type="text"
-            name="username"
-            placeholder="Username"
+            name="line3"
+            placeholder="Line #3"
             className="input input-bordered w-full max-w-xs"
           />
-          {errors.username && (
+          {errors.line3 && (
             <div role="alert" className="alert alert-warning">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +103,7 @@ const HaikuForm = () => {
                   d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                 />
               </svg>
-              <span>{errors.username.message}</span>
+              <span>{errors.line3.message}</span>
             </div>
           )}
         </div>
@@ -102,7 +112,7 @@ const HaikuForm = () => {
           className="btn btn-primary w-full max-w-xs"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Logging in..." : "Log In"}
+          {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </form>
     </div>
