@@ -40,6 +40,7 @@ export const createHaiku = async (data: THaikuSchema) => {
   });
 
   if (createdHaiku.id) {
+    prisma.$disconnect();
     revalidatePath("/");
     redirect("/");
   }
@@ -58,9 +59,9 @@ export const getHaikus = async (token: string) => {
     },
   });
 
-  console.log("User Haikus ========== ", currentUser);
-
   const userHaikus = currentUser?.haikus;
+
+  prisma.$disconnect();
 
   return userHaikus;
 };
@@ -82,6 +83,7 @@ export const getHaiku = async (id: string) => {
     return null;
   }
 
+  prisma.$disconnect();
   return haiku;
 };
 
@@ -104,6 +106,20 @@ export const updateHaiku = async (id: string, data: THaikuSchema) => {
     },
   });
 
+  prisma.$disconnect();
+  revalidatePath("/");
+  redirect("/");
+};
+
+export const deleteHaiku = async (formData: FormData) => {
+  const prisma = new PrismaClient();
+  const deletedHaiku = await prisma.haiku.delete({
+    where: {
+      id: formData.get("haikuId") as string,
+    },
+  });
+
+  prisma.$disconnect();
   revalidatePath("/");
   redirect("/");
 };

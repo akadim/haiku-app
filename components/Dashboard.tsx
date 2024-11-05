@@ -9,9 +9,11 @@ const Dashboard: FC = async () => {
   return (
     <div>
       <h2 className="text-center text-2xl text-gray-600 mb-5">Your Haikus</h2>
-      {haikus?.map((haiku, index) => (
-        <HaikuItem haiku={haiku} key={index} />
-      ))}
+      {haikus
+        ?.sort((a, b) => (a.id < b.id ? 1 : -1))
+        .map((haiku, index) => (
+          <HaikuItem haiku={haiku} key={index} />
+        ))}
     </div>
   );
 };
