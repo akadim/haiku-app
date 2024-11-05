@@ -12,7 +12,7 @@ const HaikuItem: FC<HaikuProps> = ({ haiku, key }) => {
   return (
     <div>
       {haiku.line1} <br /> {haiku.line2} <br /> {haiku.line3} <br />{" "}
-      <Link href={`/edit-haiku/${haiku.id}`}>Edit</Link>
+      <Link href={`/${haiku.id}/edit`}>Edit</Link>
       <hr />
     </div>
   );

@@ -7,7 +7,9 @@ import { decrypt } from "./userController";
 import { revalidatePath, unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
 
-const loggedInUserToken = cookies().get("ourHaikuApp")?.value;
+export const getAuthToken = async () => {
+  return cookies().get("ourHaikuApp")?.value;
+};
 
 export const createHaiku = async (data: THaikuSchema) => {
   const validatedHaiku = HaikuSchema.safeParse(data);
@@ -43,9 +45,9 @@ export const createHaiku = async (data: THaikuSchema) => {
   }
 };
 
-export const getHaikus = unstable_cache(async () => {
+export const getHaikus = async (token: string) => {
   const prisma = new PrismaClient();
-  const loggedInUser = await decrypt(loggedInUserToken);
+  const loggedInUser = await decrypt(token);
 
   const currentUser = await prisma.user.findUnique({
     where: {
@@ -56,7 +58,52 @@ export const getHaikus = unstable_cache(async () => {
     },
   });
 
+  console.log("User Haikus ========== ", currentUser);
+
   const userHaikus = currentUser?.haikus;
 
   return userHaikus;
-}, ["haikus"]);
+};
+
+export const getCachedHaikies = unstable_cache(
+  async (loggedInUserToken) => getHaikus(loggedInUserToken),
+  ["haikus"]
+);
+
+export const getHaiku = async (id: string) => {
+  const prisma = new PrismaClient();
+  const haiku = await prisma.haiku.findUnique({
+    where: {
+      id: id,
+    },
+  });
+
+  if (!haiku) {
+    return null;
+  }
+
+  return haiku;
+};
+
+export const getCachedHaiku = unstable_cache(
+  (haikuId) => getHaiku(haikuId),
+  ["haiku"]
+);
+
+export const updateHaiku = async (id: string, data: THaikuSchema) => {
+  const prisma = new PrismaClient();
+
+  const updatedHaiku = await prisma.haiku.update({
+    where: {
+      id,
+    },
+    data: {
+      line1: data.line1,
+      line2: data.line2,
+      line3: data.line3,
+    },
+  });
+
+  revalidatePath("/");
+  redirect("/");
+};
