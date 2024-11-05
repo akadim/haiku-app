@@ -1,14 +1,10 @@
-import { getHaikus } from "@/actions/HaikuController";
-import { Haiku } from "@prisma/client";
+import { getAuthToken, getCachedHaikies } from "@/actions/HaikuController";
 import { FC } from "react";
 import HaikuItem from "./HaikuItem";
 
-interface DashboardProps {
-  haikus: Haiku[];
-}
-
-const Dashboard: FC<DashboardProps> = async () => {
-  const haikus = await getHaikus();
+const Dashboard: FC = async () => {
+  const token = await getAuthToken();
+  const haikus = await getCachedHaikies(token);
 
   return (
     <div>

@@ -3,11 +3,17 @@
 import { createHaiku } from "@/actions/HaikuController";
 import { HaikuSchema, THaikuSchema } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { redirect } from "next/navigation";
-import React from "react";
+import { Haiku } from "@prisma/client";
+import { FC } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
-const HaikuForm = () => {
+interface HaikuFormProps {
+  type: string;
+  haiku?: Haiku;
+  onSubmit: SubmitHandler<THaikuSchema>;
+}
+
+const HaikuForm: FC<HaikuFormProps> = ({ type, haiku, onSubmit }) => {
   const {
     register,
     handleSubmit,
@@ -16,12 +22,9 @@ const HaikuForm = () => {
     resolver: zodResolver(HaikuSchema),
   });
 
-  const onSubmit: SubmitHandler<THaikuSchema> = async (data: THaikuSchema) => {
-    await createHaiku(data);
-  };
   return (
     <div>
-      <p className="text-center text-2xl text-gray-600 mb-5">Create Haiku</p>
+      <p className="text-center text-2xl text-gray-600 mb-5"> {type} Haiku</p>
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-xs mx-auto">
         <div className="mb-3">
           <input
@@ -30,6 +33,7 @@ const HaikuForm = () => {
             type="text"
             name="line1"
             placeholder="Line #1"
+            defaultValue={haiku?.line1}
             className="input input-bordered w-full max-w-xs"
           />
           {errors.line1 && (
@@ -58,6 +62,7 @@ const HaikuForm = () => {
             type="text"
             name="line2"
             placeholder="Line #2"
+            defaultValue={haiku?.line2}
             className="input input-bordered w-full max-w-xs"
           />
           {errors.line2 && (
@@ -86,6 +91,7 @@ const HaikuForm = () => {
             type="text"
             name="line3"
             placeholder="Line #3"
+            defaultValue={haiku?.line3}
             className="input input-bordered w-full max-w-xs"
           />
           {errors.line3 && (
