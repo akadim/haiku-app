@@ -4,7 +4,8 @@ import { createHaiku } from "@/actions/HaikuController";
 import { HaikuSchema, THaikuSchema } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Haiku } from "@prisma/client";
-import { FC } from "react";
+import { CldUploadWidget } from "next-cloudinary";
+import { FC, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 interface HaikuFormProps {
@@ -14,6 +15,9 @@ interface HaikuFormProps {
 }
 
 const HaikuForm: FC<HaikuFormProps> = ({ type, haiku, onSubmit }) => {
+  const [signature, setSignature] = useState("");
+  const [public_id, setPublic_id] = useState("");
+  const [version, setVersion] = useState("");
   const {
     register,
     handleSubmit,
@@ -113,6 +117,40 @@ const HaikuForm: FC<HaikuFormProps> = ({ type, haiku, onSubmit }) => {
             </div>
           )}
         </div>
+        <CldUploadWidget
+          signatureEndpoint="/api/widget-signature"
+          onSuccess={(result, { widget }) => {
+            setSignature(result!.info!.signature);
+            setPublic_id(result!.info!.public_id);
+            setVersion(result!.info!.version);
+          }}
+          onQueuesEnd={(result, { widget }) => {
+            widget.close();
+          }}
+        >
+          {({ open }) => {
+            return (
+              <button
+                className="btn btn-secondary mb-4"
+                onClick={(evt) => {
+                  evt.preventDefault();
+                  open();
+                }}
+              >
+                Upload an Image
+              </button>
+            );
+          }}
+        </CldUploadWidget>
+        <input
+          {...register("photo")}
+          type="hidden"
+          name="photo"
+          value={public_id}
+        />
+        <input type="hidden" name="version" value={version} />
+        <input type="hidden" name="signature" value={signature} />
+
         <button
           type="submit"
           className="btn btn-primary w-full max-w-xs"
