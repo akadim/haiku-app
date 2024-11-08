@@ -1,7 +1,7 @@
 "use server";
 
 import { HaikuSchema, THaikuSchema } from "@/lib/types";
-import { PrismaClient } from "@prisma/client";
+import { Haiku, PrismaClient } from "@prisma/client";
 import { cookies } from "next/headers";
 import { decrypt } from "./userController";
 import { revalidatePath, unstable_cache } from "next/cache";
@@ -9,6 +9,31 @@ import { redirect } from "next/navigation";
 
 export const getAuthToken = async () => {
   return cookies().get("ourHaikuApp")?.value;
+};
+
+export const formDataToObject = (formData: FormData) => {
+  const object: Record<string, any> = {};
+
+  formData.forEach((value, key) => {
+    // Handle special cases
+    if (value instanceof File) {
+      object[key] = value;
+    }
+    // Handle checkbox inputs
+    else if (value === "on" || value === "off") {
+      object[key] = value === "on";
+    }
+    // Handle number inputs
+    else if (!isNaN(Number(value))) {
+      object[key] = Number(value);
+    }
+    // Default to string
+    else {
+      object[key] = value;
+    }
+  });
+
+  return object;
 };
 
 export const createHaiku = async (data: THaikuSchema) => {
@@ -33,6 +58,7 @@ export const createHaiku = async (data: THaikuSchema) => {
           id: loggedInUser!.id as string,
         },
       },
+      photo: validatedHaiku.data.photo,
     },
     include: {
       user: true,

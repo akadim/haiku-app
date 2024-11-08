@@ -30,4 +30,5 @@ model Haiku {
   line3    String
   user User @relation(fields: [userId], references: [id])
   userId   String
+  photo    String
 }

@@ -1,10 +1,14 @@
 "use client";
 
-import { createHaiku } from "@/actions/HaikuController";
 import { HaikuSchema, THaikuSchema } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Haiku } from "@prisma/client";
-import { FC } from "react";
+import {
+  CldUploadWidget,
+  CloudinaryUploadWidgetInfo,
+  CloudinaryUploadWidgetResults,
+} from "next-cloudinary";
+import { FC, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 interface HaikuFormProps {
@@ -13,14 +17,43 @@ interface HaikuFormProps {
   onSubmit: SubmitHandler<THaikuSchema>;
 }
 
+interface CloudinaryResult {
+  info?: {
+    signature: string;
+    public_id: string;
+    version: string;
+  };
+}
+
 const HaikuForm: FC<HaikuFormProps> = ({ type, haiku, onSubmit }) => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<THaikuSchema>({
     resolver: zodResolver(HaikuSchema),
+    defaultValues: {
+      line1: haiku?.line1 || "",
+      line2: haiku?.line2 || "",
+      line3: haiku?.line3 || "",
+      photo: haiku?.photo || "",
+    },
   });
+
+  const handleUploadSuccess = (result: CloudinaryUploadWidgetResults) => {
+    if (result.info) {
+      setValue("photo", (result.info as CloudinaryUploadWidgetInfo).public_id);
+      setValue(
+        "version",
+        "" + (result.info as CloudinaryUploadWidgetInfo).version
+      );
+      setValue(
+        "signature",
+        (result.info as CloudinaryUploadWidgetInfo).signature as string
+      );
+    }
+  };
 
   return (
     <div>
@@ -113,6 +146,30 @@ const HaikuForm: FC<HaikuFormProps> = ({ type, haiku, onSubmit }) => {
             </div>
           )}
         </div>
+        <CldUploadWidget
+          signatureEndpoint="/api/widget-signature"
+          onSuccess={(result: CloudinaryUploadWidgetResults) => {
+            handleUploadSuccess(result);
+          }}
+          onQueuesEnd={(_, { widget }) => {
+            widget.close();
+          }}
+        >
+          {({ open }) => {
+            return (
+              <button
+                className="btn btn-secondary mb-4"
+                onClick={(evt) => {
+                  evt.preventDefault();
+                  open();
+                }}
+              >
+                Upload an Image
+              </button>
+            );
+          }}
+        </CldUploadWidget>
+
         <button
           type="submit"
           className="btn btn-primary w-full max-w-xs"

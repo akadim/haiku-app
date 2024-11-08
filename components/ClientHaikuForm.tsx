@@ -3,9 +3,9 @@
 import { FC } from "react";
 import HaikuForm from "./HaikuForm";
 import { SubmitHandler } from "react-hook-form";
-import { THaikuSchema } from "@/lib/types";
 import { Haiku } from "@prisma/client";
 import { createHaiku, updateHaiku } from "@/actions/HaikuController";
+import { THaikuSchema } from "@/lib/types";
 
 interface ClientHaikuFormProps {
   type: "Create" | "Edit";
