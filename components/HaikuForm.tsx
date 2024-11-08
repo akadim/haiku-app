@@ -1,10 +1,13 @@
 "use client";
 
-import { createHaiku } from "@/actions/HaikuController";
 import { HaikuSchema, THaikuSchema } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Haiku } from "@prisma/client";
-import { CldUploadWidget } from "next-cloudinary";
+import {
+  CldUploadWidget,
+  CloudinaryUploadWidgetInfo,
+  CloudinaryUploadWidgetResults,
+} from "next-cloudinary";
 import { FC, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
@@ -14,17 +17,43 @@ interface HaikuFormProps {
   onSubmit: SubmitHandler<THaikuSchema>;
 }
 
+interface CloudinaryResult {
+  info?: {
+    signature: string;
+    public_id: string;
+    version: string;
+  };
+}
+
 const HaikuForm: FC<HaikuFormProps> = ({ type, haiku, onSubmit }) => {
-  const [signature, setSignature] = useState("");
-  const [public_id, setPublic_id] = useState("");
-  const [version, setVersion] = useState("");
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<THaikuSchema>({
     resolver: zodResolver(HaikuSchema),
+    defaultValues: {
+      line1: haiku?.line1 || "",
+      line2: haiku?.line2 || "",
+      line3: haiku?.line3 || "",
+      photo: haiku?.photo || "",
+    },
   });
+
+  const handleUploadSuccess = (result: CloudinaryUploadWidgetResults) => {
+    if (result.info) {
+      setValue("photo", (result.info as CloudinaryUploadWidgetInfo).public_id);
+      setValue(
+        "version",
+        "" + (result.info as CloudinaryUploadWidgetInfo).version
+      );
+      setValue(
+        "signature",
+        (result.info as CloudinaryUploadWidgetInfo).signature as string
+      );
+    }
+  };
 
   return (
     <div>
@@ -119,12 +148,10 @@ const HaikuForm: FC<HaikuFormProps> = ({ type, haiku, onSubmit }) => {
         </div>
         <CldUploadWidget
           signatureEndpoint="/api/widget-signature"
-          onSuccess={(result, { widget }) => {
-            setSignature(result!.info!.signature);
-            setPublic_id(result!.info!.public_id);
-            setVersion(result!.info!.version);
+          onSuccess={(result: CloudinaryUploadWidgetResults) => {
+            handleUploadSuccess(result);
           }}
-          onQueuesEnd={(result, { widget }) => {
+          onQueuesEnd={(_, { widget }) => {
             widget.close();
           }}
         >
@@ -142,14 +169,6 @@ const HaikuForm: FC<HaikuFormProps> = ({ type, haiku, onSubmit }) => {
             );
           }}
         </CldUploadWidget>
-        <input
-          {...register("photo")}
-          type="hidden"
-          name="photo"
-          value={public_id}
-        />
-        <input type="hidden" name="version" value={version} />
-        <input type="hidden" name="signature" value={signature} />
 
         <button
           type="submit"
