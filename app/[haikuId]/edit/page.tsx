@@ -6,16 +6,12 @@ import { FC } from "react";
 import { SubmitHandler } from "react-hook-form";
 
 interface EditHaikuPageProps {
-  params: {
-    haikuId: string;
-  };
+  params: Promise<{ haikuId: string }>;
 }
 
-const EditHaikuPage: FC<EditHaikuPageProps> = async (
-  props: {
-    params: Promise<{ haikuId: string }>;
-  }
-) => {
+const EditHaikuPage: FC<EditHaikuPageProps> = async (props: {
+  params: Promise<{ haikuId: string }>;
+}) => {
   const params = await props.params;
   const haiku = await getCachedHaiku(params.haikuId);
 
