@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 import { v2 as cloudinary } from "cloudinary";
 
 export const getAuthToken = async () => {
-  return cookies().get("ourHaikuApp")?.value;
+  return (await cookies()).get("ourHaikuApp")?.value;
 };
 
 cloudinary.config({
@@ -19,35 +19,12 @@ cloudinary.config({
   secure: true,
 });
 
-export const formDataToObject = (formData: FormData) => {
-  const object: Record<string, any> = {};
-
-  formData.forEach((value, key) => {
-    // Handle special cases
-    if (value instanceof File) {
-      object[key] = value;
-    }
-    // Handle checkbox inputs
-    else if (value === "on" || value === "off") {
-      object[key] = value === "on";
-    }
-    // Handle number inputs
-    else if (!isNaN(Number(value))) {
-      object[key] = Number(value);
-    }
-    // Default to string
-    else {
-      object[key] = value;
-    }
-  });
-
-  return object;
-};
-
 export const createHaiku = async (data: THaikuSchema) => {
   const validatedHaiku = HaikuSchema.safeParse(data);
   const prisma = new PrismaClient();
-  const loggedInUser = await decrypt(cookies().get("ourHaikuApp")?.value);
+  const loggedInUser = await decrypt(
+    (await cookies()).get("ourHaikuApp")?.value
+  );
 
   if (!validatedHaiku.success) {
     return {
@@ -122,7 +99,7 @@ export const getHaiku = async (id: string) => {
 };
 
 export const getCachedHaiku = unstable_cache(
-  (haikuId) => getHaiku(haikuId),
+  async (haikuId) => getHaiku(haikuId),
   ["haiku"]
 );
 
