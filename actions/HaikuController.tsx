@@ -1,7 +1,7 @@
 "use server";
 
 import { HaikuSchema, THaikuSchema } from "@/lib/types";
-import { Haiku, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { cookies } from "next/headers";
 import { decrypt } from "./userController";
 import { revalidatePath, unstable_cache } from "next/cache";
