@@ -6,10 +6,18 @@ import { cookies } from "next/headers";
 import { decrypt } from "./userController";
 import { revalidatePath, unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
+import { v2 as cloudinary } from "cloudinary";
 
 export const getAuthToken = async () => {
   return cookies().get("ourHaikuApp")?.value;
 };
+
+cloudinary.config({
+  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
+});
 
 export const formDataToObject = (formData: FormData) => {
   const object: Record<string, any> = {};
@@ -129,6 +137,7 @@ export const updateHaiku = async (id: string, data: THaikuSchema) => {
       line1: data.line1,
       line2: data.line2,
       line3: data.line3,
+      photo: data.photo,
     },
   });
 
@@ -137,13 +146,16 @@ export const updateHaiku = async (id: string, data: THaikuSchema) => {
   redirect("/");
 };
 
-export const deleteHaiku = async (formData: FormData) => {
+export const deleteHaiku = async (haikuId: string) => {
   const prisma = new PrismaClient();
+
   const deletedHaiku = await prisma.haiku.delete({
     where: {
-      id: formData.get("haikuId") as string,
+      id: haikuId,
     },
   });
+
+  const result = await cloudinary.uploader.destroy(deletedHaiku.photo);
 
   prisma.$disconnect();
   revalidatePath("/");
