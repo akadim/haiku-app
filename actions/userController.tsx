@@ -37,7 +37,7 @@ export const decrypt = async (session: string | undefined = "") => {
 };
 
 export const logout = async () => {
-  cookies().delete("ourHaikuApp");
+  (await cookies()).delete("ourHaikuApp");
   redirect("/");
 };
 
@@ -89,7 +89,7 @@ export const signup = async (data: TSignupSchema) => {
     { id: newUser.id, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 },
     process.env.JWT_SECRET!
   );
-  cookies().set("ourHaikuApp", ourTokenValue, {
+  (await cookies()).set("ourHaikuApp", ourTokenValue, {
     httpOnly: true,
     sameSite: "strict",
     maxAge: 60 * 60 * 24,
@@ -138,7 +138,7 @@ export const login = async (data: TLoginSchema) => {
   }
 
   // Create a JWT Token with the user id and store it in the cookie
-  cookies().set(
+  (await cookies()).set(
     "ourHaikuApp",
     jwt.sign(
       {

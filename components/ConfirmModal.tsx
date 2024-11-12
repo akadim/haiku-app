@@ -18,7 +18,7 @@ const ConfirmModal: FC<ConfirmModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
-  const confirmModal = useRef<HTMLDialogElement>();
+  const confirmModal = useRef<HTMLDialogElement>(undefined);
   return (
     <>
       <input

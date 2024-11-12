@@ -11,11 +11,12 @@ interface EditHaikuPageProps {
   };
 }
 
-const EditHaikuPage: FC<EditHaikuPageProps> = async ({
-  params,
-}: {
-  params: { haikuId: string };
-}) => {
+const EditHaikuPage: FC<EditHaikuPageProps> = async (
+  props: {
+    params: Promise<{ haikuId: string }>;
+  }
+) => {
+  const params = await props.params;
   const haiku = await getCachedHaiku(params.haikuId);
 
   return (
