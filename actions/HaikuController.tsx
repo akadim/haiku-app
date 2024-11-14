@@ -1,7 +1,7 @@
 "use server";
 
 import { HaikuSchema, THaikuSchema } from "@/lib/types";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { decrypt } from "./userController";
 import { revalidatePath, unstable_cache } from "next/cache";
@@ -21,7 +21,6 @@ cloudinary.config({
 
 export const createHaiku = async (data: THaikuSchema) => {
   const validatedHaiku = HaikuSchema.safeParse(data);
-  const prisma = new PrismaClient();
   const loggedInUser = await decrypt(
     (await cookies()).get("ourHaikuApp")?.value
   );
@@ -58,7 +57,6 @@ export const createHaiku = async (data: THaikuSchema) => {
 };
 
 export const getHaikus = async (token: string) => {
-  const prisma = new PrismaClient();
   const loggedInUser = await decrypt(token);
 
   const currentUser = await prisma.user.findUnique({
@@ -83,7 +81,6 @@ export const getCachedHaikies = unstable_cache(
 );
 
 export const getHaiku = async (id: string) => {
-  const prisma = new PrismaClient();
   const haiku = await prisma.haiku.findUnique({
     where: {
       id: id,
@@ -104,8 +101,6 @@ export const getCachedHaiku = unstable_cache(
 );
 
 export const updateHaiku = async (id: string, data: THaikuSchema) => {
-  const prisma = new PrismaClient();
-
   const updatedHaiku = await prisma.haiku.update({
     where: {
       id,
@@ -124,8 +119,6 @@ export const updateHaiku = async (id: string, data: THaikuSchema) => {
 };
 
 export const deleteHaiku = async (haikuId: string) => {
-  const prisma = new PrismaClient();
-
   const deletedHaiku = await prisma.haiku.delete({
     where: {
       id: haikuId,

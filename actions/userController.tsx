@@ -6,7 +6,7 @@ import {
   TLoginSchema,
   TSignupSchema,
 } from "@/lib/types";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import { cookies } from "next/headers";
@@ -42,8 +42,6 @@ export const logout = async () => {
 };
 
 export const signup = async (data: TSignupSchema) => {
-  const prisma = new PrismaClient();
-
   // Validate if the user with the same username already exists
   const uniqueUsernameSchema = signupSchema.superRefine(async (data, ctx) => {
     const isUsernameTaken = await prisma.user.findUnique({
@@ -102,7 +100,6 @@ export const signup = async (data: TSignupSchema) => {
 export const login = async (data: TLoginSchema) => {
   // Validating the login data
   const result = LoginSchema.safeParse(data);
-  const prisma = new PrismaClient();
 
   if (!result.success) {
     return {
