@@ -31,7 +31,7 @@ const HaikuItem: FC<HaikuProps> = ({ haiku, key }) => {
         height="300"
         src={haiku.photo}
         sizes="650px"
-        alt="Description of my image"
+        alt={haiku.photo}
         crop={{ type: "pad", source: true }}
         fillBackground
         overlays={[
