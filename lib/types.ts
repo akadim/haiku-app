@@ -25,9 +25,9 @@ export const HaikuSchema = z.object({
   line1: z.string().min(1, "Line 1 is required"),
   line2: z.string().min(1, "Line 2 is required"),
   line3: z.string().min(1, "Line 3 is required"),
-  photo: z.string().min(1, "Photo is required"),
-  version: z.string().min(1, "Version is required"),
-  signature: z.string().min(1, "Signature is required"),
+  photo: z.string().optional(),
+  version: z.string().optional(),
+  signature: z.string().optional(),
 });
 
 export type TSignupSchema = z.infer<typeof signupSchema>;
