@@ -42,7 +42,7 @@ export const createHaiku = async (data: THaikuSchema) => {
           id: loggedInUser!.id as string,
         },
       },
-      photo: validatedHaiku.data.photo,
+      photo: validatedHaiku.data.photo || "",
     },
     include: {
       user: true,
